@@ -340,3 +340,9 @@ Trades OrderBook::placeOrder(MarketOrderPtr order){
 	 }
 	 return matchMarketOrder(order,bids_);
 }
+
+void OrderBook::runBook(){
+	 while(true){
+		  
+	 }
+}

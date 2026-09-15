@@ -56,8 +56,18 @@ MarketOrderPtr DataParser::createMarketOrder(const std::vector<std::string>& wor
 	 return nullptr;
 }
 
-bool DataParser::modifyOrderPrice(const std::vector<std::string> &line){
+void DataParser::modifyOrderPrice(const std::vector<std::string> &line,OrderBook& book){
 	 OrderId id = line.at(0);
+	 Price newQuantity = stoull(line.at(1));
+	 Date date = stoull(line.at(2));
+	 book.modifyOrderPrice(id,newQuantity);
+}
+
+void DataParser::modifyOrderQuantity(const std::vector<std::string> &line,OrderBook& book){
+	 OrderId id = line.at(0);
+	 Quantity newQuantity = stoull(line.at(1));
+	 Date date = stoull(line.at(2));
+	 book.modifyOrderQuantity(id,newQuantity);
 }
 void DataParser::handleStream(OrderBook& book, std::string& path){
 	 std::ifstream f(path);
@@ -70,10 +80,10 @@ void DataParser::handleStream(OrderBook& book, std::string& path){
 	 while(std::getline(f,line)){
 		  std::vector<std::string> data = splitLine(line,',');
 		  try{	
-				//0-place,1-mod price, 2-mod quant
-				ModId mod_id = stoi(data.at(0));
-				switch(mod_id){
-					 case 0:
+				ModId action_id = stoi(data.back());
+				switch(action_id){
+					 //must add {} so the compiler knows that orderTypes lifetime ends in case 0
+					 case 0:{
 						  OrderType orderType = static_cast<OrderType>(std::stoi(data.at(1)));
 						  if(orderType == OrderType::Market){
 								book.placeOrder(createMarketOrder(data));
@@ -81,14 +91,15 @@ void DataParser::handleStream(OrderBook& book, std::string& path){
 								book.placeOrder(createOrder(data));
 						  }
 						  break;
-					 case 1:
-						  book.modifyOrderPrice();
+					 }
+					 case 1:{
+						  modifyOrderPrice(data,book);
 						  break;
-					 case 2:
-						  book.modifyOrderPrice();
+					 }
+					 case 2:{
+						  modifyOrderQuantity(data,book);
 						  break;
-
-
+					 }
 				}
 		  }catch(...){
 				throw;

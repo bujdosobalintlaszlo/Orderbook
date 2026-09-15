@@ -1,7 +1,7 @@
 #include<gtest/gtest.h>
 #include"orderbook/order.h"
 TEST(OrderTestSuite,CreateValidObject){
-	 Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,16767,67);
+	 Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 0,1655716096498,"APPL");
 	 EXPECT_EQ(order.getId(),"e2a85d9f-07a5-4f94-8d5f-789dc3deb097");
 	 EXPECT_EQ(order.getOrderType(),OrderType::PostOnly);
 	 EXPECT_EQ(order.getSide(),Side::BUY);
@@ -14,7 +14,7 @@ TEST(OrderTestSuite,CreateValidObject){
 
 TEST(OrderTestSuite, CreateOrderWithZeroQuantity) {
     try {
-        Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 0);
+        Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 0,1655716096498,"APPL");
         FAIL() << "Expected std::invalid_argument for zero quantity!";
     } catch (const std::invalid_argument &e) {
         EXPECT_STREQ(e.what(), "Order quantity cannot be zero! Order ID: e2a85d9f-07a5-4f94-8d5f-789dc3deb097");
@@ -25,7 +25,7 @@ TEST(OrderTestSuite, CreateOrderWithZeroQuantity) {
 
 TEST(OrderTestSuite,CreateOrderWithInvalidPrice){
 	 try{
-		  Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,0,67);
+        Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 0,1655716096498,"APPL");
 		  FAIL() << "Expected a std::invalid_argument but got nothing!";
 	 }catch(const std::invalid_argument &e){
 		  EXPECT_STREQ(e.what(),"Order price must be positive! Order ID: e2a85d9f-07a5-4f94-8d5f-789dc3deb097 with PRICE: 0");
@@ -35,7 +35,7 @@ TEST(OrderTestSuite,CreateOrderWithInvalidPrice){
 }
 
 TEST(OrderTestSuite,ValidPartialOrderFill){
-	 Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,16767,10);
+	 Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 0,1655716096498,"APPL");
 	 order.fill(8);
 	 EXPECT_EQ(order.getId(),"e2a85d9f-07a5-4f94-8d5f-789dc3deb097");
 	 EXPECT_EQ(order.getOrderType(),OrderType::PostOnly);
@@ -49,7 +49,7 @@ TEST(OrderTestSuite,ValidPartialOrderFill){
 }
 
 TEST(OrderTestSuite,ValidFullOrderFill){
-	 Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,16767,10);
+	 Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 0,1655716096498,"APPL");
 	 order.fill(10);
 	 EXPECT_EQ(order.getId(),"e2a85d9f-07a5-4f94-8d5f-789dc3deb097");
 	 EXPECT_EQ(order.getOrderType(),OrderType::PostOnly);
@@ -64,7 +64,7 @@ TEST(OrderTestSuite,ValidFullOrderFill){
 
 TEST(OrderTestSuite,InvalidOrderFill){
 	 try{
-		  Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,16767,10);
+		  Order order("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 0,1655716096498,"APPL");
 		  order.fill(67);
 		  FAIL() << "Expected std::invalid_argument exception but got no exception!";
 	 }catch(const std::invalid_argument &e){
