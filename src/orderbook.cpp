@@ -38,18 +38,22 @@ Trades OrderBook::matchMarketOrder(MarketOrderPtr &order,std::map<Price,Orders, 
 		  auto orders_it = orders.begin();
 		  while(orders_it != orders.end() && order->getRemainingQuantity() >0){
 				auto &curr_order = *orders_it;
-				uint64_t fill_qty = std::min(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
-				if(fill_qty > 0){
-					 Price fill_price = curr_order->getPrice();
-					 order->fill(fill_qty);
-					 curr_order->fill(fill_qty);
-					 trades.push_back(createTradeData(order, curr_order, fill_price));
+				if(curr_order->getSymbol() != order->getSymbol())
+				{
+					 uint64_t fill_qty = std::min(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
+					 if(fill_qty > 0 ){
+						  Price fill_price = curr_order->getPrice();
+						  order->fill(fill_qty);
+						  curr_order->fill(fill_qty);
+						  trades.push_back(createTradeData(order, curr_order, fill_price));
+					 }
 				}
 				if (curr_order->getRemainingQuantity() == 0) {
 					 orders_it = orders.erase(orders_it);
 				} else {
 					 ++orders_it;
-				}	
+				}
+				
 		  }
 		  if (orders.empty()) {
 				it = book.erase(it);
@@ -66,6 +70,7 @@ Trades OrderBook::matchMarketOrder(MarketOrderPtr &order,std::map<Price,Orders, 
 ///</summary>
 template <typename Compare>
 Trades OrderBook::matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book) {
+	 std::cout << "ENTERED LIMIT MATCH" << '\n';
 	 Trades trades{};
 	 auto it = book.begin();
 	 while (it != book.end() && order->getRemainingQuantity() > 0) {
@@ -73,18 +78,20 @@ Trades OrderBook::matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compar
 		  auto orders_it = orders.begin();
 		  while (orders_it != orders.end() && order->getRemainingQuantity() > 0) {
 				auto &current_order = *orders_it;
-				uint64_t fill_qty{0};
-				if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()){
-					 fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
-				}
-				else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
-					 fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
-				}
-				if(fill_qty > 0){
-					 Price fill_price = current_order->getPrice();
-					 order->fill(fill_qty);
-					 current_order->fill(fill_qty);
-					 trades.push_back(createTradeData(order, current_order,fill_price));
+				if(order->getSymbol() == current_order->getSymbol()){
+					 uint64_t fill_qty{0};
+					 if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()){
+						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+					 }
+					 else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
+						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+					 }
+					 if(fill_qty > 0){
+						  Price fill_price = current_order->getPrice();
+						  order->fill(fill_qty);
+						  current_order->fill(fill_qty);
+						  trades.push_back(createTradeData(order, current_order,fill_price));
+					 }
 				}
 				//if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
 				if (current_order->getRemainingQuantity() == 0) {
@@ -169,18 +176,20 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 		  while(orders_it != orders.end()){
 				auto &current_order = *orders_it;
 				if(order->getRemainingQuantity() > 0){
-					 uint64_t fill_qty{0};
-					 if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()){
-						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
-					 }
-					 else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()){
-						  fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
-					 }
-					 if(fill_qty > 0){
-						  uint64_t fill_price = current_order->getPrice();
-						  order->fill(fill_qty);
-						  current_order->fill(fill_qty);
-						  trades.push_back(createTradeData(order, current_order,fill_price));
+					 if(current_order->getSymbol() == order->getSymbol()){
+						  uint64_t fill_qty{0};
+						  if(order->getSide() == Side::BUY && order->getPrice() >= current_order->getPrice()&& order->getSymbol() == current_order->getSymbol()){
+								fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+						  }
+						  else if(order->getSide() == Side::SELL && order->getPrice() <= current_order->getPrice()&& order->getSymbol() == current_order->getSymbol()){
+								fill_qty = std::min(order->getRemainingQuantity(), current_order->getRemainingQuantity());
+						  }
+						  if(fill_qty > 0){
+								uint64_t fill_price = current_order->getPrice();
+								order->fill(fill_qty);
+								current_order->fill(fill_qty);
+								trades.push_back(createTradeData(order, current_order,fill_price));
+						  }
 					 }
 				}
 				//itt a hiba utolagos torles kene mert kitorli ha partial fillel
@@ -235,22 +244,39 @@ bool OrderBook::canMatch(OrderPtr &order, std::map<Price,Orders,Comparator> &boo
 
 template<typename Comparator>
 void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it){
+	 std::cout << "exe price" << '\n';
 	 auto[it,inserted] = bids_.try_emplace(newPrice);
 	 item_it->get()->setPrice(newPrice);
 	 it->second.push_back(std::move(*(item_it)));
+	 std::cout << "succesfull pricemod" << '\n';
 }
 bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
+	 std::cout << "____ MODIFY PRICE ____" << '\n';
+	 std::cout << orders_.size() << '\n';
 	 auto order_it = orders_.find(id);
-	 //wont modify if it doesnt exists or has the same price
+	 
+	 
 	 if(order_it != orders_.end()){
+		  std::cout << "a" << '\n';
+		  std::cout << order_it->first << '\n';
+
+		  
+		  
+	 }
+/*
+		  std::cout << "IN MOD PRICE IF" << '\n';
 		  if(order_it->second.side_ == Side::BUY){
+				std::cout << "Mod price on buy" << '\n';
 				executePriceMod(bids_,newPrice,order_it->second.it_);
 				
 		  }else{
+				std::cout << "Mod price on sell" << '\n';
 				executePriceMod(asks_,newPrice,order_it->second.it_);
 		  }
+		  orders_.erase(order_it);
 		  return true;
 	 }
+	 */
 	 return false;
 }
 template<typename Comparator>
@@ -259,6 +285,7 @@ void OrderBook::executeModifyOrder(std::map<Price,Orders,Comparator> &book,Helpe
 	 auto mod_order = std::find(level_it->second.begin(),level_it->second.end(),*(order_it->second.it_));
 	 if(mod_order != level_it->second.end()){
 		 (mod_order)->get()->setQuantity(newQuantity);
+		 std::cout << "succesfull quant mod" << '\n';
 	 }
 } 
 bool OrderBook::modifyOrderQuantity(OrderId id,Quantity newQuantity){
@@ -279,7 +306,20 @@ Trades OrderBook::placeOrder(OrderPtr order){
 	 if(!order) throw std::invalid_argument("Invalid order was submited!");
 	 switch(order->getOrderType()){
 		  case OrderType::GoodForDay:
-				//implementation postponed
+				//NOT IMPLEMENTED YET
+				if(order->getSide() == Side::BUY){
+					 Trades t = matchLimitOrder(order,asks_);
+					 if(order->getRemainingQuantity() >0){
+						  insertIntoBook(order,bids_);
+					 }
+					 return t;
+				}else{
+					 Trades t = matchLimitOrder(order,bids_);
+					 if(order->getRemainingQuantity() > 0){
+						  insertIntoBook(order,asks_);
+					 }
+					 return t;
+				}
 				break;		
 		  case OrderType::GoodTillCancel:
 				if(order->getSide() == Side::BUY){
@@ -340,9 +380,10 @@ Trades OrderBook::placeOrder(MarketOrderPtr order){
 	 }
 	 return matchMarketOrder(order,bids_);
 }
-
+/*
 void OrderBook::runBook(){
 	 while(true){
 		  
 	 }
 }
+*/

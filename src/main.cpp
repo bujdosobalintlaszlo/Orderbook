@@ -2,15 +2,15 @@
 // Use of this source code is governed by the MIT license that can be found in
 // the LICENSE file.
 #include <chrono>                   // for operator""s, chrono_literals
-#include <ftxui/screen/screen.hpp>  // for Full, Screen
+//#include <ftxui/screen/screen.hpp>  // for Full, Screen
 #include <iostream>                 // for cout, ostream
 #include <memory>                   // for allocator, shared_ptr
 #include <string>                   // for string, operator<<
 #include <thread>                   // for sleep_for
  
-#include "ftxui/dom/elements.hpp"  // for hflow, paragraph, separator, hbox, vbox, filler, operator|, border, Element
-#include "ftxui/dom/node.hpp"      // for Render
-#include "ftxui/screen/box.hpp"    // for ftxui
+//#include "ftxui/dom/elements.hpp"  // for hflow, paragraph, separator, hbox, vbox, filler, operator|, border, Element
+//#include "ftxui/dom/node.hpp"      // for Render
+//#include "ftxui/screen/box.hpp"    // for ftxui
 #include "dataParser/dataParser.h"
 //using namespace std::chrono_literals;
 #include "orderbook/orderbook.h"
@@ -56,15 +56,12 @@
  */
 
 int main(){
-    std::string path = std::string(PROJECT_ROOT) + "/" + "src/dataParser/orders_2000000.csv";
-    
-
+    std::string path = std::string(PROJECT_ROOT) + "/" + "src/dataParser/orders.csv";
     OrderBook book;
-    std::string line;
-
-    std::chrono::nanoseconds totalMatchTime{0};
-    size_t orderCount = 0;
-
+//    std::chrono::nanoseconds totalMatchTime{0};
+//	 std::cout << "Give the input file's path: " << '\n';
+	 DataParser::handleStream(book,path);
+	 /*
     while(std::getline(f, line)){
         if(line.empty()) continue;
 
@@ -100,12 +97,13 @@ int main(){
         }
         orderCount++;
     }
+	 */
 
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(totalMatchTime).count();
-    std::cout << "Orders processed: " << orderCount << '\n';
-    std::cout << "Total match time: " << ms << " ms\n";
-    std::cout << "Avg per order: " 
-               << (totalMatchTime.count() / (double)orderCount) << " ns\n";
+//    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(totalMatchTime).count();
+    //std::cout << "Orders processed: " << orderCount << '\n';
+  //  std::cout << "Total match time: " << ms << " ms\n";
+    //std::cout << "Avg per order: " 
+    //           << (totalMatchTime.count() / (double)orderCount) << " ns\n";
 
     return 0;
 }
