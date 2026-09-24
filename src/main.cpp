@@ -56,7 +56,7 @@
  */
 
 int main(){
-    std::string path = std::string(PROJECT_ROOT) + "/" + "src/dataParser/orders.csv";
+    std::string path = std::string(PROJECT_ROOT) + "/" + "src/dataParser/orders_100.csv";
     OrderBook book;
 //    std::chrono::nanoseconds totalMatchTime{0};
 //	 std::cout << "Give the input file's path: " << '\n';

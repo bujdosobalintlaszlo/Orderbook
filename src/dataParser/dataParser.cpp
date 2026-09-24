@@ -60,7 +60,11 @@ void DataParser::modifyOrderPrice(const std::vector<std::string> &line,OrderBook
 	 OrderId id = line.at(0);
 	 Price newPrice = stoull(line.at(3));
 	 Date date = stoull(line.at(5));
-	 book.modifyOrderPrice(id,newPrice);
+	 if(book.modifyOrderPrice(id,newPrice)){
+		  std::cout << "returned true" << '\n';
+	 }else{
+		  std::cout << "returned false" << '\n';
+	 }
 }
 
 void DataParser::modifyOrderQuantity(const std::vector<std::string> &line,OrderBook& book){
@@ -86,7 +90,6 @@ void DataParser::handleStream(OrderBook& book, std::string& path){
 				ModId action_id = std::stoi(data.back());
 				std::cout << "action_id af parse" << '\n';
 				std::cout << line << '\n';
-				std::cout << '\n';
 				switch(action_id){
 					 //must add {} so the compiler knows that orderTypes lifetime ends in case 0
 					 case 0:{

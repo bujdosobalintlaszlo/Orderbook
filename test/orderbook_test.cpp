@@ -32,9 +32,11 @@ TEST_F(OrderBookTest,CreatingBookWithOrders){
 
 TEST_F(OrderBookTest,AdddingRedundantIdsToTheBook){
 	 Order o1("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
-	 Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::PostOnly,Side::BUY,6700000,670000,1655716096502,"APPL");
+	 Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,6700000,670000,1655716096502,"APPL");
 	 Trades trades1 = ob.placeOrder(std::make_unique<Order>(o1));
+	 ob.displayBids();
 	 Trades trades2 = ob.placeOrder(std::make_unique<Order>(o2));
+	 ob.displayBids();
 	 ASSERT_EQ(trades1.size(),0);
 	 ASSERT_EQ(trades2.size(),0);
 	 EXPECT_EQ(ob.getBids().size(),1);
@@ -351,8 +353,24 @@ TEST_F(OrderBookTest,GoodTillCancelCantFill){
 	 EXPECT_EQ(ob.getAsks().size(),1);
 	 EXPECT_EQ(ob.getBids().size(),0);
 }
-
-
+TEST_F(OrderBookTest,ModifyOrderPrice){
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
+	 Trades trades = ob.placeOrder(std::make_unique<Order>(o));
+	 ob.displayBids();
+	 ob.modifyOrderPrice("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",1000000);
+	 ob.displayBids();
+	 ASSERT_EQ(trades.size(),0);
+	 ASSERT_EQ(ob.getBids().size(),1);
+}
+TEST_F(OrderBookTest,ModifyOrderQuantity){
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
+	 Trades trades = ob.placeOrder(std::make_unique<Order>(o));
+	 ob.displayBids();
+	 ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",1000000);
+	 ob.displayBids();
+	 ASSERT_EQ(trades.size(),0);
+	 ASSERT_EQ(ob.getBids().size(),1);
+}
 TEST_F(OrderBookTest,WorkFlow1){
 
 }

@@ -127,6 +127,9 @@ bool OrderBook::insertIntoBook(OrderPtr &order,std::map<Price,Orders,Comparator>
 	 const Price price = order->getPrice();
 	 const Side side = order->getSide();
 	 const OrderId id = order->getId();
+	 if(orders_.find(order->getId()) != orders_.end()){
+		  return false;
+	 }
 	 auto [it, inserted] = book.try_emplace(price);
 	 it->second.push_back(std::move(order));
 	 auto order_it = std::prev(it->second.end());
@@ -243,40 +246,37 @@ bool OrderBook::canMatch(OrderPtr &order, std::map<Price,Orders,Comparator> &boo
 }
 
 template<typename Comparator>
-void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it){
-	 std::cout << "exe price" << '\n';
-	 auto[it,inserted] = bids_.try_emplace(newPrice);
-	 item_it->get()->setPrice(newPrice);
-	 it->second.push_back(std::move(*(item_it)));
-	 std::cout << "succesfull pricemod" << '\n';
+void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it,HelperMapIt &order_it){
+    std::cout << "exe price" << '\n';
+
+    Price oldPrice = order_it->second.price_;
+    auto oldLevel_it = book.find(oldPrice);
+    auto [it, inserted] = book.try_emplace(newPrice);
+    item_it->get()->setPrice(newPrice);
+    it->second.splice(it->second.end(), oldLevel_it->second, item_it);
+    if (oldLevel_it->second.empty()) {
+        book.erase(oldLevel_it);
+    }
+    orders_.erase(order_it);
+    std::cout << "succesfull pricemod" << '\n';
 }
 bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
 	 std::cout << "____ MODIFY PRICE ____" << '\n';
-	 std::cout << orders_.size() << '\n';
 	 auto order_it = orders_.find(id);
-	 
-	 
+	 std::cout << order_it->first << " = " << id << '\n'; 
 	 if(order_it != orders_.end()){
-		  std::cout << "a" << '\n';
-		  std::cout << order_it->first << '\n';
-
-		  
-		  
-	 }
-/*
 		  std::cout << "IN MOD PRICE IF" << '\n';
 		  if(order_it->second.side_ == Side::BUY){
 				std::cout << "Mod price on buy" << '\n';
-				executePriceMod(bids_,newPrice,order_it->second.it_);
+				executePriceMod(bids_,newPrice,order_it->second.it_,order_it);
 				
 		  }else{
 				std::cout << "Mod price on sell" << '\n';
-				executePriceMod(asks_,newPrice,order_it->second.it_);
+				executePriceMod(asks_,newPrice,order_it->second.it_,order_it);
 		  }
-		  orders_.erase(order_it);
+		  //orders_.erase(order_it);
 		  return true;
 	 }
-	 */
 	 return false;
 }
 template<typename Comparator>

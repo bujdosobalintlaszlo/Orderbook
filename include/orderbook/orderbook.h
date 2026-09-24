@@ -59,7 +59,7 @@ public:
 	 //order modifications
 	 bool modifyOrderPrice(OrderId id,Price newPrice);
 	 template<typename Comparator>
-	 void executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it);
+	 void executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it,HelperMapIt &order_it);
 	 bool modifyOrderQuantity(OrderId id,Quantity newQuantity);
 	 template<typename Comparator>
 	 void executeModifyOrder(std::map<Price,Orders,Comparator> &book,HelperMapIt order_it,Quantity newQuantity);
