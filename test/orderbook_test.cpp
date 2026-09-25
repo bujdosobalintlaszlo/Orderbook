@@ -362,16 +362,65 @@ TEST_F(OrderBookTest,InvalidIdModifyOrderPrice){
 	 ASSERT_EQ(result,false);
 
 }
-TEST_F(OrderBookTest,ModifyOrderQuantity){
+TEST_F(OrderBookTest,ModifyOrderQuantityToHigherAmount){
 	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
 	 Trades trades = ob.placeOrder(std::make_unique<Order>(o));
+	 ob.displayBids();
+	 ob.displayAsks();
 	 bool result=  ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",1000000);
+	 ob.displayBids();
+	 ob.displayAsks();
+	 ASSERT_EQ(result,true);
+}
+TEST_F(OrderBookTest,ModifyOrderQuantityToLowerAmount){
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
+	 Trades trades = ob.placeOrder(std::make_unique<Order>(o));
+	 ob.displayBids();
+	 ob.displayAsks();
+	 bool result=  ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",1000);
+	 ob.displayBids();
+	 ob.displayAsks();
 	 ASSERT_EQ(result,true);
 }
 TEST_F(OrderBookTest,InvalidIdModifyOrderQuantity){
 	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
 	 Trades trades = ob.placeOrder(std::make_unique<Order>(o));
-	 bool result=  ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",1000000);
+	 ob.displayBids();
+	 ob.displayAsks();
+	 bool result=  ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",1000);
+	 ob.displayBids();
+	 ob.displayAsks();
+	 ASSERT_EQ(result,false);
+}
+TEST_F(OrderBookTest,ModifyOrderQuantityAfterPartialFill){
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 67,1655716097498,"APPL");
+    Market o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::Market,Side::BUY, 40,1655716097698,"APPL");
+    ob.placeOrder(std::make_unique<Order>(o));
+    Trades trade = ob.placeOrder(std::make_unique<Market>(o2));
+	 ob.displayBids();
+	 ob.displayAsks();
+	 bool result=  ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",1000000);
+	 ob.displayBids();
+	 ob.displayAsks();
+	 ASSERT_EQ(result,true);
+}
+
+//THIS CASE SEGFAULTS
+TEST_F(OrderBookTest,ModifyOrderQuantityAfterFullyFilled){
+	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 67,1655716097498,"APPL");
+    Market o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::Market,Side::BUY, 67,1655716097698,"APPL");
+	 std::cout << "no seg" << '\n';
+    ob.placeOrder(std::make_unique<Order>(o));
+	 std::cout << "no seg" << '\n';
+    Trades trade = ob.placeOrder(std::make_unique<Market>(o2));
+	 std::cout << "no seg" << '\n';
+	 ob.displayBids();
+	 ob.displayAsks();
+	 std::cout << "no seg" << '\n';
+	 bool result=  ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",1000000);
+	 std::cout << "no seg after mod" << '\n';
+	 ob.displayBids();
+	 ob.displayAsks();
 	 ASSERT_EQ(result,false);
 }
 //0d6cac59-e232-4df5-a467-9a18ec1ea8d9,,,,16335,1700000001956,,2

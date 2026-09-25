@@ -49,6 +49,7 @@ Trades OrderBook::matchMarketOrder(MarketOrderPtr &order,std::map<Price,Orders, 
 					 }
 				}
 				if (curr_order->getRemainingQuantity() == 0) {
+					 orders_.erase((*orders_it)->getId());
 					 orders_it = orders.erase(orders_it);
 				} else {
 					 ++orders_it;
@@ -95,6 +96,7 @@ Trades OrderBook::matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compar
 				}
 				//if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
 				if (current_order->getRemainingQuantity() == 0) {
+					 orders_.erase((*orders_it)->getId());
 					 orders_it = orders.erase(orders_it);
 				} else {
 					 ++orders_it;
@@ -198,7 +200,7 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 				//itt a hiba utolagos torles kene mert kitorli ha partial fillel
 				//if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
 				if (current_order->getRemainingQuantity() == 0) {
-					 //std::cout << "ORDER DELETED FROM BOOK" << '\n';
+					 orders_.erase((*orders_it)->getId());
 					 orders_it = orders.erase(orders_it);
 				} else {
 					 ++orders_it;
@@ -283,6 +285,7 @@ void OrderBook::executeModifyOrder(std::map<Price,Orders,Comparator> &book,Helpe
 } 
 bool OrderBook::modifyOrderQuantity(OrderId id,Quantity newQuantity){
 	 if(!orders_.empty() && newQuantity>0){
+		  std::cout << "ORDERS SIZE IN MOD QUANT " <<orders_.size() << '\n';
 		  auto order_it = orders_.find(id);
 		  if(order_it != orders_.end()){
 			  if(order_it->second.side_ == Side::BUY){
