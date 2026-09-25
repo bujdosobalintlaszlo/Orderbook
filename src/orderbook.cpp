@@ -262,20 +262,22 @@ void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price ne
 }
 bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
 	 std::cout << "____ MODIFY PRICE ____" << '\n';
-	 auto order_it = orders_.find(id);
-	 std::cout << order_it->first << " = " << id << '\n'; 
-	 if(order_it != orders_.end()){
-		  std::cout << "IN MOD PRICE IF" << '\n';
-		  if(order_it->second.side_ == Side::BUY){
-				std::cout << "Mod price on buy" << '\n';
-				executePriceMod(bids_,newPrice,order_it->second.it_,order_it);
-				
-		  }else{
-				std::cout << "Mod price on sell" << '\n';
-				executePriceMod(asks_,newPrice,order_it->second.it_,order_it);
+	 if(orders_.size() > 0)
+	 {
+		  auto order_it = orders_.find(id);
+		  //std::cout << order_it->first << " = " << id << '\n'; 
+		  if(order_it != orders_.end()){
+				std::cout << "IN MOD PRICE IF" << '\n';
+				if(order_it->second.side_ == Side::BUY){
+					 std::cout << "Mod price on buy" << '\n';
+					 executePriceMod(bids_,newPrice,order_it->second.it_,order_it);
+					 
+				}else{
+					 std::cout << "Mod price on sell" << '\n';
+					 executePriceMod(asks_,newPrice,order_it->second.it_,order_it);
+				}
+				return true;
 		  }
-		  //orders_.erase(order_it);
-		  return true;
 	 }
 	 return false;
 }
@@ -289,14 +291,16 @@ void OrderBook::executeModifyOrder(std::map<Price,Orders,Comparator> &book,Helpe
 	 }
 } 
 bool OrderBook::modifyOrderQuantity(OrderId id,Quantity newQuantity){
-	 auto order_it = orders_.find(id);
-	 if(order_it != orders_.end()){
-		 if(order_it->second.side_ == Side::BUY){
-				executeModifyOrder(bids_,order_it,newQuantity);
-		 }else{
-				executeModifyOrder(asks_,order_it,newQuantity);
-		 } 
-		 return true;
+	 if(!orders_.empty()){
+		  auto order_it = orders_.find(id);
+		  if(order_it != orders_.end()){
+			  if(order_it->second.side_ == Side::BUY){
+					 executeModifyOrder(bids_,order_it,newQuantity);
+			  }else{
+					 executeModifyOrder(asks_,order_it,newQuantity);
+			  } 
+			  return true;
+		  }
 	 }
 	 return false;
 }
