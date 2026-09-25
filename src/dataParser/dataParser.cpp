@@ -34,7 +34,7 @@ OrderPtr DataParser::createOrder(const std::vector<std::string>& words){
 		  Symbol symbol = words.at(6);
 		  return std::make_unique<Order>(id, orderType, side, price, quantity,date,symbol);
     }catch(const std::exception& e){
-        std::cerr << "Failed to parse line: " << e.what() << '\n';
+		  throw;
         return nullptr;
     }
 	 return nullptr;

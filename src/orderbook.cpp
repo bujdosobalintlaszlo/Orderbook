@@ -38,7 +38,7 @@ Trades OrderBook::matchMarketOrder(MarketOrderPtr &order,std::map<Price,Orders, 
 		  auto orders_it = orders.begin();
 		  while(orders_it != orders.end() && order->getRemainingQuantity() >0){
 				auto &curr_order = *orders_it;
-				if(curr_order->getSymbol() != order->getSymbol())
+				if(curr_order->getSymbol() == order->getSymbol())
 				{
 					 uint64_t fill_qty = std::min(order->getRemainingQuantity(), curr_order->getRemainingQuantity());
 					 if(fill_qty > 0 ){

@@ -108,7 +108,13 @@ TEST_F(OrderBookTest,MarketOrderMatch){
     Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 67,1655716097498,"APPL");
     Market o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::Market,Side::BUY, 40,1655716097698,"APPL");
     ob.placeOrder(std::make_unique<Order>(o));
+	 ob.displayBids();
+	 ob.displayAsks();
     Trades trade = ob.placeOrder(std::make_unique<Market>(o2));
+	 std::cout << "market match utan:" << '\n';
+	 ob.displayBids();
+	 ob.displayAsks();
+
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
@@ -356,18 +362,18 @@ TEST_F(OrderBookTest,GoodTillCancelCantFill){
 TEST_F(OrderBookTest,ModifyOrderPrice){
 	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
 	 Trades trades = ob.placeOrder(std::make_unique<Order>(o));
-	 ob.displayBids();
+	 //ob.displayBids();
 	 ob.modifyOrderPrice("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",1000000);
-	 ob.displayBids();
+	 //ob.displayBids();
 	 ASSERT_EQ(trades.size(),0);
 	 ASSERT_EQ(ob.getBids().size(),1);
 }
 TEST_F(OrderBookTest,ModifyOrderQuantity){
 	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
 	 Trades trades = ob.placeOrder(std::make_unique<Order>(o));
-	 ob.displayBids();
+	// ob.displayBids();
 	 ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",1000000);
-	 ob.displayBids();
+	// ob.displayBids();
 	 ASSERT_EQ(trades.size(),0);
 	 ASSERT_EQ(ob.getBids().size(),1);
 }
