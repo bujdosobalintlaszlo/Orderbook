@@ -60,11 +60,7 @@ void DataParser::modifyOrderPrice(const std::vector<std::string> &line,OrderBook
 	 OrderId id = line.at(0);
 	 Price newPrice = stoull(line.at(3));
 	 Date date = stoull(line.at(5));
-	 if(book.modifyOrderPrice(id,newPrice)){
-		  std::cout << "returned true" << '\n';
-	 }else{
-		  std::cout << "returned false" << '\n';
-	 }
+	 book.modifyOrderPrice(id,newPrice);
 }
 
 void DataParser::modifyOrderQuantity(const std::vector<std::string> &line,OrderBook& book){

@@ -205,7 +205,6 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 				}
 		  }
 		  if (orders.empty()) {
-				//std::cout << "LEVEL DELETED FROM BOOK" << '\n';
 				it = book.erase(it);
 		  } else {
 				++it;
@@ -247,8 +246,6 @@ bool OrderBook::canMatch(OrderPtr &order, std::map<Price,Orders,Comparator> &boo
 
 template<typename Comparator>
 void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price newPrice,Orders::iterator item_it,HelperMapIt &order_it){
-    std::cout << "exe price" << '\n';
-
     Price oldPrice = order_it->second.price_;
     auto oldLevel_it = book.find(oldPrice);
     auto [it, inserted] = book.try_emplace(newPrice);
@@ -258,22 +255,16 @@ void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price ne
         book.erase(oldLevel_it);
     }
     orders_.erase(order_it);
-    std::cout << "succesfull pricemod" << '\n';
 }
 bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
 	 std::cout << "____ MODIFY PRICE ____" << '\n';
-	 if(orders_.size() > 0)
+	 if(!orders_.empty() && newPrice > 0)
 	 {
 		  auto order_it = orders_.find(id);
-		  //std::cout << order_it->first << " = " << id << '\n'; 
 		  if(order_it != orders_.end()){
-				std::cout << "IN MOD PRICE IF" << '\n';
 				if(order_it->second.side_ == Side::BUY){
-					 std::cout << "Mod price on buy" << '\n';
 					 executePriceMod(bids_,newPrice,order_it->second.it_,order_it);
-					 
 				}else{
-					 std::cout << "Mod price on sell" << '\n';
 					 executePriceMod(asks_,newPrice,order_it->second.it_,order_it);
 				}
 				return true;
@@ -291,7 +282,7 @@ void OrderBook::executeModifyOrder(std::map<Price,Orders,Comparator> &book,Helpe
 	 }
 } 
 bool OrderBook::modifyOrderQuantity(OrderId id,Quantity newQuantity){
-	 if(!orders_.empty()){
+	 if(!orders_.empty() && newQuantity>0){
 		  auto order_it = orders_.find(id);
 		  if(order_it != orders_.end()){
 			  if(order_it->second.side_ == Side::BUY){

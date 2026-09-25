@@ -34,9 +34,7 @@ TEST_F(OrderBookTest,AdddingRedundantIdsToTheBook){
 	 Order o1("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");
 	 Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb097",OrderType::PostOnly,Side::BUY,6700000,670000,1655716096502,"APPL");
 	 Trades trades1 = ob.placeOrder(std::make_unique<Order>(o1));
-	 ob.displayBids();
 	 Trades trades2 = ob.placeOrder(std::make_unique<Order>(o2));
-	 ob.displayBids();
 	 ASSERT_EQ(trades1.size(),0);
 	 ASSERT_EQ(trades2.size(),0);
 	 EXPECT_EQ(ob.getBids().size(),1);
@@ -72,7 +70,6 @@ TEST_F(OrderBookTest,LimitOrderTest){
 	 Order o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::Limit,Side::BUY,670000,670000,1655716096700,"APPL");
 	 ob.placeOrder(std::make_unique<Order>(o));
 	 Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
-	 std::cout << trade.size() << '\n';
 	 ASSERT_EQ(trade.size(),1);
 }
 
@@ -108,13 +105,7 @@ TEST_F(OrderBookTest,MarketOrderMatch){
     Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::SELL, 67008000000, 67,1655716097498,"APPL");
     Market o2("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",OrderType::Market,Side::BUY, 40,1655716097698,"APPL");
     ob.placeOrder(std::make_unique<Order>(o));
-	 ob.displayBids();
-	 ob.displayAsks();
     Trades trade = ob.placeOrder(std::make_unique<Market>(o2));
-	 std::cout << "market match utan:" << '\n';
-	 ob.displayBids();
-	 ob.displayAsks();
-
 	 EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
@@ -241,7 +232,6 @@ TEST_F(OrderBookTest, FillOrKillCanMatchMultipleOrder) {
     ob.placeOrder(std::make_unique<Order>(o));
     ob.placeOrder(std::make_unique<Order>(o3));
     Trades trade = ob.placeOrder(std::make_unique<Order>(o2));
-	 std::cout << "trade size: " << trade.size() << '\n'; 
     EXPECT_THAT(trade, ElementsAre(
         AllOf(
             Property(&Trade::getAskTrade, AllOf(
@@ -384,6 +374,8 @@ TEST_F(OrderBookTest,InvalidIdModifyOrderQuantity){
 	 bool result=  ob.modifyOrderQuantity("e2a85d9f-07a5-4f94-8d5f-789dc3deb098",1000000);
 	 ASSERT_EQ(result,false);
 }
+//0d6cac59-e232-4df5-a467-9a18ec1ea8d9,,,,16335,1700000001956,,2
+
 TEST_F(OrderBookTest,WorkFlow1){
 
 }
