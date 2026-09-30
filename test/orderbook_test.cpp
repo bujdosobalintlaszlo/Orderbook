@@ -12,16 +12,6 @@ using ::testing::ElementsAre;
 class OrderBookTest : public ::testing::Test{
 protected:
 	 OrderBook ob;
-	 //___ HELPERS FOR TESTING ___
-	 bool checkTradeVals(Trades expected, Trades output) const{
-		  if(expected.size() != output.size()) return false;
-		  for(size_t i{0};i<expected.size();++i){
-				if(expected[i].getBidTrade() != output[i].getBidTrade() || expected[i].getAskTrade() != output[i].getAskTrade()){
-					 return false;
-				}
-		  }
-		  return true;
-	 }
 };
 TEST_F(OrderBookTest,CreatingBookWithOrders){
 	 Order o("e2a85d9f-07a5-4f94-8d5f-789dc3deb097", OrderType::PostOnly, Side::BUY, 16767, 670000,1655716096498,"APPL");

@@ -71,7 +71,6 @@ Trades OrderBook::matchMarketOrder(MarketOrderPtr &order,std::map<Price,Orders, 
 ///</summary>
 template <typename Compare>
 Trades OrderBook::matchLimitOrder(OrderPtr &order, std::map<Price,Orders, Compare> &book) {
-	 std::cout << "ENTERED LIMIT MATCH" << '\n';
 	 Trades trades{};
 	 auto it = book.begin();
 	 while (it != book.end() && order->getRemainingQuantity() > 0) {
@@ -167,7 +166,6 @@ bool OrderBook::cancel(BookType& book,std::unordered_map<OrderId,InsertInfo>::it
 	 return false;
 }
 
-///FONTOS FOK tobb orderbol is fillelheto csak a vegere nem maradhta
 template<typename Comparator>
 Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 	if(!canMatch(order,book)){
@@ -197,8 +195,6 @@ Trades OrderBook::FOK(OrderPtr &order,std::map<Price,Orders,Comparator> &book){
 						  }
 					 }
 				}
-				//itt a hiba utolagos torles kene mert kitorli ha partial fillel
-				//if the current order from the book got fully filled, then we remove it from the list, storing trades at the given price level
 				if (current_order->getRemainingQuantity() == 0) {
 					 orders_.erase((*orders_it)->getId());
 					 orders_it = orders.erase(orders_it);
@@ -259,7 +255,6 @@ void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price ne
     orders_.erase(order_it);
 }
 bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
-	 std::cout << "____ MODIFY PRICE ____" << '\n';
 	 if(!orders_.empty() && newPrice > 0)
 	 {
 		  auto order_it = orders_.find(id);
@@ -280,12 +275,10 @@ void OrderBook::executeModifyOrder(std::map<Price,Orders,Comparator> &book,Helpe
 	 auto mod_order = std::find(level_it->second.begin(),level_it->second.end(),*(order_it->second.it_));
 	 if(mod_order != level_it->second.end()){
 		 (mod_order)->get()->setQuantity(newQuantity);
-		 std::cout << "succesfull quant mod" << '\n';
 	 }
 } 
 bool OrderBook::modifyOrderQuantity(OrderId id,Quantity newQuantity){
 	 if(!orders_.empty() && newQuantity>0){
-		  std::cout << "ORDERS SIZE IN MOD QUANT " <<orders_.size() << '\n';
 		  auto order_it = orders_.find(id);
 		  if(order_it != orders_.end()){
 			  if(order_it->second.side_ == Side::BUY){

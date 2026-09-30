@@ -10,9 +10,7 @@
 #include "orderbook/orderbook.h"
 #include<string>
 #include <fstream>
-/*rework idea:
-methodId(placeorder,modifyPrice,modifyAmount),
-*/
+
 std::vector<std::string> DataParser::splitLine(const std::string& line, char delim){
     std::vector<std::string> words;
     std::stringstream s(line);
@@ -64,7 +62,6 @@ void DataParser::modifyOrderPrice(const std::vector<std::string> &line,OrderBook
 }
 
 void DataParser::modifyOrderQuantity(const std::vector<std::string> &line,OrderBook& book){
-	 std::cout << "mod quant" << " " << line.size() << '\n';
 	 OrderId id = line.at(0);
 	 Quantity newQuantity = stoull(line.at(4));
 	 Date date = stoull(line.at(5));
@@ -81,20 +78,13 @@ void DataParser::handleStream(OrderBook& book, std::string& path){
 	 while(std::getline(f,line)){
 		  std::vector<std::string> data = splitLine(line,',');
 		  try{	
-				std::cout << "------START OF A ORDER-------" << '\n';
-				//std::cout << "action_id bef parse" << "" << data.size() << " " << data.back() << '\n';
 				ModId action_id = std::stoi(data.back());
-				std::cout << "action_id af parse" << '\n';
-				std::cout << line << '\n';
 				switch(action_id){
-					 //must add {} so the compiler knows that orderTypes lifetime ends in case 0
 					 case 0:{
 						  OrderType orderType = static_cast<OrderType>(std::stoi(data.at(1)));
 						  if(orderType == OrderType::Market){
-								std::cout << "Sub market" << '\n';
 								book.placeOrder(createMarketOrder(data));
 						  }else{
-								std::cout << "Sub other" << '\n';
 								book.placeOrder(createOrder(data));
 						  }
 						  break;
@@ -108,9 +98,6 @@ void DataParser::handleStream(OrderBook& book, std::string& path){
 						  break;
 					 }
 				}
-		  book.displayAsks(); 
-		  book.displayBids(); 
-		  std::cout << "-------------" << '\n';
 		  }catch(...){
 				throw;
 		  } 

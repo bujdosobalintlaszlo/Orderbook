@@ -1,28 +1,20 @@
-// Copyright 2020 Arthur Sonzogni. All rights reserved.
-// Use of this source code is governed by the MIT license that can be found in
-// the LICENSE file.
-#include <chrono>                   // for operator""s, chrono_literals
-//#include <ftxui/screen/screen.hpp>  // for Full, Screen
-#include <iostream>                 // for cout, ostream
-#include <memory>                   // for allocator, shared_ptr
-#include <string>                   // for string, operator<<
-#include <thread>                   // for sleep_for
- 
-//#include "ftxui/dom/elements.hpp"  // for hflow, paragraph, separator, hbox, vbox, filler, operator|, border, Element
-//#include "ftxui/dom/node.hpp"      // for Render
-//#include "ftxui/screen/box.hpp"    // for ftxui
+#include <iostream> #include <string> 
 #include "dataParser/dataParser.h"
-//using namespace std::chrono_literals;
 #include "orderbook/orderbook.h"
-#include "orderbook/order.h"
-#include "orderbook/market.h"
 #include <chrono>
 
-int main(){
-    std::string path = std::string(PROJECT_ROOT) + "/" + "src/dataParser/orders_100.csv";
+
+int main() {
+    std::string path = std::string(PROJECT_ROOT) + "/" + "src/dataParser/orders.csv";
     OrderBook book;
-	 DataParser::handleStream(book,path);
 
+    auto start = std::chrono::high_resolution_clock::now();
 
+    DataParser::handleStream(book, path);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+
+    std::cout << "Engine ran in: " << duration.count() << " ms" << std::endl;
     return 0;
 }
