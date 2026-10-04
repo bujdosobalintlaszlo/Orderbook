@@ -7,3 +7,6 @@
 [submodule "external/rapidjson"]
 	path = external/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "benchmark"]
+	path = third_party/benchmark
+	url = https://github.com/google/benchmark.git
