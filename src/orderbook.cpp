@@ -252,7 +252,7 @@ void OrderBook::executePriceMod(std::map<Price,Orders,Comparator> &book,Price ne
     if (oldLevel_it->second.empty()) {
         book.erase(oldLevel_it);
     }
-    orders_.erase(order_it);
+    order_it->second.price_ = newPrice;
 }
 bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
 	 if(!orders_.empty() && newPrice > 0)
@@ -270,13 +270,13 @@ bool OrderBook::modifyOrderPrice(OrderId id,Price newPrice){
 	 return false;
 }
 template<typename Comparator>
-void OrderBook::executeModifyOrder(std::map<Price,Orders,Comparator> &book,HelperMapIt order_it,Quantity newQuantity){
-	 auto level_it = book.find(order_it->second.price_);
-	 auto mod_order = std::find(level_it->second.begin(),level_it->second.end(),*(order_it->second.it_));
-	 if(mod_order != level_it->second.end()){
-		 (mod_order)->get()->setQuantity(newQuantity);
-	 }
-} 
+void OrderBook::executeModifyOrder(
+    std::map<Price, Orders, Comparator>& book,
+    HelperMapIt order_it,
+    Quantity newQuantity)
+{
+    order_it->second.it_->get()->setQuantity(newQuantity);
+}
 bool OrderBook::modifyOrderQuantity(OrderId id,Quantity newQuantity){
 	 if(!orders_.empty() && newQuantity>0){
 		  auto order_it = orders_.find(id);

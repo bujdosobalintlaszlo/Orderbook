@@ -9,6 +9,7 @@
 #include "orderbook/ordertype.h"
 #include "orderbook/orderbook.h"
 #include<string>
+#include <stdexcept>
 #include <fstream>
 
 std::vector<std::string> DataParser::splitLine(const std::string& line, char delim){
@@ -67,44 +68,81 @@ void DataParser::modifyOrderQuantity(const std::vector<std::string> &line,OrderB
 	 Date date = stoull(line.at(5));
 	 book.modifyOrderQuantity(id,newQuantity);
 }
-void DataParser::handleStream(OrderBook& book, std::string& path){
-	 std::ifstream f(path);
-    if(!f.is_open()){
-        std::cerr << "Failed to open file: " << path << '\n';
-		  throw;
+int DataParser::parseInt(const std::string& value) {
+    std::size_t consumed = 0;
+    const int result = std::stoi(value, &consumed);
+
+    if (consumed != value.size()) {
+        throw std::invalid_argument("Invalid integer: '" + value + "'");
     }
-	 std::string line;
-	 //mod line: modId,orderId,amount,date
-	 while(std::getline(f,line)){
-		  std::vector<std::string> data = splitLine(line,',');
-		  try{	
-				ModId action_id = std::stoi(data.back());
-				switch(action_id){
-					 case 0:{
-						  OrderType orderType = static_cast<OrderType>(std::stoi(data.at(1)));
-						  if(orderType == OrderType::Market){
-								book.placeOrder(createMarketOrder(data));
-						  }else{
-								book.placeOrder(createOrder(data));
-						  }
-						  break;
-					 }
-					 case 1:{
-						  modifyOrderPrice(data,book);
-						  break;
-					 }
-					 case 2:{
-						  modifyOrderQuantity(data,book);
-						  break;
-					 }
-				}
-		  }catch(...){
-				throw;
-		  } 
-	 }
-	 
+
+    return result;
 }
-/*
+
+void DataParser::handleStream(OrderBook& book, const std::string& path) {
+    std::ifstream file(path);
+
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open file: " + path);
+    }
+
+    std::string line;
+    std::size_t lineNumber = 0;
+
+    while (std::getline(file, line)) {
+        ++lineNumber;
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+
+        try {
+            const std::vector<std::string> data = splitLine(line, ',');
+
+            if (data.empty() || data.back().empty()) {
+                throw std::invalid_argument("Missing action ID");
+            }
+
+            const int actionId = parseInt(data.back());
+            switch (actionId) {
+                case 0: {
+                    if (data.size() < 3) {
+                        throw std::invalid_argument(
+                            "Too few fields for placing an order");
+                    }
+
+                    const int typeId = parseInt(data.at(1));
+
+                    if (typeId == static_cast<int>(OrderType::Market)) {
+                        book.placeOrder(createMarketOrder(data));
+                    } else {
+                        book.placeOrder(createOrder(data));
+                    }
+                    break;
+                }
+
+                case 1:
+                    modifyOrderPrice(data, book);
+                    break;
+
+                case 2:
+                    modifyOrderQuantity(data, book);
+                    break;
+
+                default:
+                    throw std::invalid_argument(
+                        "Unknown action ID: " + std::to_string(actionId));
+            }
+        } catch (const std::exception& error) {
+					 std::cerr << path << ":" << lineNumber
+              << ": skipping row: " << error.what() << '\n';
+		  continue;
+	 }
+    }
+
+    if (file.bad()) {
+        throw std::runtime_error("Failed while reading file: " + path);
+    }
+}/*
 {
   "id": "e2a85d9f-07a5-4f94-8d5f-789dc3deb097",
   "method": "order.place",
