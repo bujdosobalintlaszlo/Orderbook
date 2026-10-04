@@ -31,6 +31,8 @@ private:
 	 std::map<Price,Orders> asks_;
 	 std::unordered_map<OrderId,InsertInfo> orders_;
 	 using HelperMapIt = std::unordered_map<OrderId,InsertInfo>::iterator;
+	 template<typename Comparator>
+	 bool canMatchAny(const OrderPtr& order,const std::map<Price, Orders, Comparator>& book) const; 
 public:
 	 const std::map<Price,Orders,std::greater<uint64_t>>& getBids() const noexcept;
 	 const std::map<Price,Orders>& getAsks() const noexcept;
