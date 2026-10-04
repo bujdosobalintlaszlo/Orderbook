@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <string>
 #include "orderbook/types.h"
-#include "orderbook/constants.h"
 //IMPLEMENT LIMIT
 Order::Order(OrderId id, OrderType orderType, Side side, Price price, Quantity quantity, Date date, Symbol symbol) 
     : id_(id), orderType_(orderType), side_(side), price_(price), 
@@ -92,3 +91,4 @@ void Order::printOrder() const {
 				  << ", Date: " << getDate() << "\n";
 }
 
+Order::~Order() = default;

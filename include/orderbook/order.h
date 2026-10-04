@@ -35,4 +35,5 @@ public:
 	 void printOrder() const;
 	 bool isFilled() const; 
 
+	 ~Order();
 };

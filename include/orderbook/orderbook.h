@@ -66,5 +66,6 @@ public:
 	 //---
 	 template<typename Comparator>
 	 bool modifyOrderQuantity(OrderId id,Quantity newQuantity);
+	 ~OrderBook();
 };
 
